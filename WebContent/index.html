@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+  </head>
+  <body>
+
+      <canvas id="canvas" width="1200" height="720" style="border:1px solid #000000;"></canvas>
+  </body>
+  <script>
+  
+  	var Player = {
+  		location : {
+  			x : 0,
+  			y : 0
+  		},
+  		warrior_image : 'role.png',
+  		warrior : null,
+  		init : function () {
+  			this.warrior = new Image();
+  			this.warrior.src = this.warrior_image;
+  		},
+  		getPlayer : function () {
+  			this.init();
+  			return this.warrior;
+  		},
+  		setLocation : function(x, y){
+  			this.location.x = x;
+  			this.location.y = y;
+  		},
+  		moveLeft : function(){
+  			this.location.x = this.location.x - 1;
+  		},
+  		moveRight : function(){
+  			this.location.x = this.location.x + 1;
+  		},
+  		moveUp : function(){
+  			this.location.y = this.location.y - 1;
+  		},
+  		moveDown : function(){
+  			this.location.y = this.location.y + 1;
+  		}
+  	}
+  	
+  	var Obstacle = {
+  		obstacle_image : 'wall.png',
+  		obstacle : null,
+  		init : function () {
+  			this.obstacle = new Image();
+  			this.obstacle.src = this.obstacle_image;
+  		},
+  		getObstacle : function () {
+  			this.init();
+  			return this.obstacle;
+  		}
+  	}
+  	
+  	var MapMaker = {
+  		map : [],
+		canvas : null,
+		context : null,
+		setMap : function (mapArray) {
+			this.map = mapArray;
+			this.refreshMap();
+		},
+		init : function(canvasId){
+			this.canvas = document.getElementById(canvasId);
+			this.context = this.canvas.getContext('2d');
+			
+			this.context.fillStyle = '#000000';
+			this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+			
+		},
+		refreshMap : function (){
+			this.init('canvas');
+			for(var i = 0 ; i < this.map.length ; i++){
+				for(var j = 0 ; j < this.map[i].length ; j++){
+					if(this.map[i][j] === 1){
+						this.context.drawImage(
+								Obstacle.getObstacle(), 
+								j * Obstacle.getObstacle().width, 
+								i * Obstacle.getObstacle().height, 
+								Obstacle.getObstacle().width, 
+								Obstacle.getObstacle().height);
+					} else if (this.map[i][j] === 2){
+						Player.setLocation(j, i);
+						this.context.drawImage(
+								Player.getPlayer(), 
+								j * Obstacle.getObstacle().width, 
+								i * Obstacle.getObstacle().height,
+								Obstacle.getObstacle().width, 
+								Obstacle.getObstacle().height);
+					}
+				}
+			}
+		}
+  	};
+  	
+  	var Event = {
+  		doLeft : function(){
+  			MapMaker.map[Player.location.y][Player.location.x] = 0;
+  			Player.moveLeft();
+  			MapMaker.map[Player.location.y][Player.location.x] = 2;
+  		},
+  		doRight : function(){
+  			MapMaker.map[Player.location.y][Player.location.x] = 0;
+  			Player.moveRight();
+  			MapMaker.map[Player.location.y][Player.location.x] = 2;
+  		},
+  		doUp : function(){
+  			MapMaker.map[Player.location.y][Player.location.x] = 0;
+  			Player.moveUp();
+  			MapMaker.map[Player.location.y][Player.location.x] = 2;
+  		},
+  		doDown : function(){
+  			MapMaker.map[Player.location.y][Player.location.x] = 0;
+  			Player.moveDown();
+  			MapMaker.map[Player.location.y][Player.location.x] = 2;
+  		},
+  		move : function(e){
+  			switch(e.keyCode) {
+  			case 37:
+  				Event.doLeft();
+  				break;
+  			case 38:
+  				Event.doUp();
+  				break;
+  			case 39:
+  				Event.doRight();
+  				break;
+  			case 40:
+  				Event.doDown();
+  				break;
+  			}
+  			MapMaker.refreshMap();
+  		}
+  	}
+  	
+  	
+  	window.onload = function() {
+  		var map = [
+  			[1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,1,0,0],
+  			[0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0],
+  			[0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0],
+  			[0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0],
+  			[0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+  			[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  			[1,1,0,1,1,0,1,1,0,1,0,1,1,0,0,1,0,1,0,1],
+  			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  			[0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  			[0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+  			[0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,1,0],
+  			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+  		];
+  		MapMaker.setMap(map);
+  		
+  		document.onkeydown = Event.move;
+  	}
+	
+  		
+  </script>
+</html>
