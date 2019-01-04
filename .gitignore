@@ -1,0 +1,12 @@
+
+/classes
+/target
+
+.tern-project
+*.classpath
+*.class
+*.MF
+.settings/
+.project
+/bin/
+
